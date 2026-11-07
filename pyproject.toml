@@ -19,6 +19,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+code-symbol-index = "code_symbol_index.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/Trysac/u178-code-symbol-index"
 Source = "https://github.com/Trysac/u178-code-symbol-index"

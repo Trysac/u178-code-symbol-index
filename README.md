@@ -1,48 +1,41 @@
 # code-symbol-index
 
-[![PyPI version](https://img.shields.io/pypi/v/trysac-code-symbol-index)](https://pypi.org/project/trysac-code-symbol-index/)
-[![License: MIT](https://img.shields.io/pypi/l/trysac-code-symbol-index)](LICENSE)
-[![CI](https://github.com/Trysac/u178-code-symbol-index/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u178-code-symbol-index/actions/workflows/ci.yml)
+Finding where a function or class is defined in a large Python repository often means grep noise or an IDE that is not available in CI, scripts, or LLM agents. Language servers are heavy to embed and their indexes are not portable files. `code-symbol-index` is a pure-library, standard-library-only indexer that builds a small, deterministic symbol index from the `ast` module, persists it as stable JSON, and answers ranked fuzzy queries.
 
-Symbol index for Python codebases built from ast: definitions with signatures, ranked fuzzy search, incremental updates by hash and a stable JSON format
+## Installation
 
-## Problem
-
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
-
-## Install
-
-```sh
+```bash
 pip install trysac-code-symbol-index
-# or
-uv add trysac-code-symbol-index
 ```
-
-Requires Python 3.10 or newer. No runtime dependencies.
 
 ## Usage
 
 ```python
-import code_symbol_index
+from pathlib import Path
+from code_symbol_index import build_index
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(code_symbol_index.normalize("  Hello World "))  # -> "hello world"
+# Build index for a directory
+idx = build_index(Path("."))
 
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    code_symbol_index.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+# Search symbols
+matches = idx.search("Repo", limit=5)
+for match in matches:
+    print(f"{match.symbol.path}:{match.symbol.line} {match.symbol.qualname}")
 ```
 
-## Documentation
+## API Summary
 
-- [Architecture](docs/ARCHITECTURE.md) and [decisions](docs/decisions/)
-- [Testing](docs/TESTING.md) and [security](docs/SECURITY.md)
-- [Project record](docs/PROJECT.md) and [stack](docs/STACK.md)
-- [Changelog](CHANGELOG.md) and [contributing guide](CONTRIBUTING.md)
+- `index_source(path: str, text: str) -> list[Symbol]`: Parses a source string into a list of symbols.
+- `build_index(root: Path, ...) -> SymbolIndex`: Walks a directory tree to produce an index. Reuses previous index entries if file SHA-256 matches.
+- `SymbolIndex`: Holds symbols in memory. Methods: `update_file(path, text)`, `remove_file(path)`, `search(query, kind=None, limit=20)`, `to_json()`, `from_json(text)`.
+- Errors: `SymbolIndexError` (codes: `too_many_files`, `invalid_query`, `invalid_option`, `unsupported_format`) and `IndexFormatError`.
 
-## License
+## Why not LSP or ctags?
 
-[MIT](LICENSE) (c) 2026 Miguel Gomez
+- **Zero install**: No binary dependencies or complex setup; it uses only the Python standard library.
+- **Portable**: The index is a stable JSON file that CI scripts and LLM agents can easily read and transport.
+- **Agent-ready**: Ranked fuzzy search (exact, prefix, camel, substring, subsequence) is tailored for non-interactive lookup.
+
+## Security
+
+See [docs/SECURITY.md](docs/SECURITY.md) for the threat model and constraints.

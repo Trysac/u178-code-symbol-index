@@ -1,16 +1,10 @@
 # code-symbol-index
 
-> Symbol index for Python codebases built from ast: definitions with signatures, ranked fuzzy search, incremental updates by hash and a stable JSON format Python package `trysac-code-symbol-index`, import name `code_symbol_index`, MIT licensed,
-> Python >= 3.10, no runtime dependencies.
+Symbol indexer for Python built from ast. No runtime dependencies.
 
 ## Docs
 
-- [README](README.md): problem, install, usage example
-- [AGENTS](AGENTS.md): commands, folder map, conventions, limits
-- [Architecture](docs/ARCHITECTURE.md): shape of the package and its public API
-- [Testing](docs/TESTING.md): how to run and extend the tests
-
-## Optional
-
-- [Stack](docs/STACK.md): tools used and discarded
-- [Changelog](CHANGELOG.md): release history
+- [README](README.md): Usage, Install, API
+- [Architecture](docs/ARCHITECTURE.md): AST and Index details
+- [Security](docs/SECURITY.md): Threat model
+- [Testing](docs/TESTING.md): Test suite coverage
