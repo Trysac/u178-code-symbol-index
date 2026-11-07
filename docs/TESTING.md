@@ -1,20 +1,11 @@
 # Testing
 
-## Running
+Tests are located in `tests/` and cover the public API behavior and specific edge cases.
 
-```sh
-uv run pytest --cov=code_symbol_index   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
-```
+## Files
 
-## Policy
+- `tests/test_code_symbol_index.py`: Tests the `index_source` logic, `SymbolIndex` operations (CRUD), search ranking, error handling for bad syntax/decoding, and CLI functionality.
 
-- Branch coverage of `src/code_symbol_index` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import code_symbol_index`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
+## Coverage
 
-## Layout
-
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+Tests enforce that `index_source` returns correct `Symbol` objects (including signatures/docs), `SymbolIndex` handles file updates correctly based on hashes, and searching returns appropriately ranked matches.

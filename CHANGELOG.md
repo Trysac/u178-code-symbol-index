@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Implement Python symbol indexer with AST extraction, SHA-256 caching, multi-strategy ranking, and CLI.
 - Initial project structure from the factory utility template.

@@ -1,29 +1,21 @@
 # Architecture
 
-## Purpose
+`code-symbol-index` processes Python source using the `ast` module and stores symbols in a memory-mapped dictionary for fast search.
 
-`trysac-code-symbol-index` is a small, dependency-free Python library: Symbol index for Python codebases built from ast: definitions with signatures, ranked fuzzy search, incremental updates by hash and a stable JSON format
+## Core Components
 
-## Shape
+- **AST Traversal**: Uses an explicit stack to walk the tree, bounded by `MAX_NESTING_DEPTH = 32` to avoid stack overflows. Symbols discovered include `class`, `function`, `async_function`, `method`, and top-level or class-level `variable` (Assignment and AnnAssignment).
+- **Serialization**: `SymbolIndex` serializes the entire state (including error logs) to a stable, deterministic JSON payload via `to_json()`, ensuring reproducible indexes.
+- **Ranking Engine**: Scoring is tiered:
+  - Exact match (100)
+  - Case-insensitive exact match (90)
+  - Prefix match (80)
+  - Camel/Snake abbreviation match (70)
+  - Substring match (60)
+  - Subsequence match (40)
 
-```text
-caller code --> code_symbol_index (public API in __init__.py)
-                    |
-                    +-- pure functions, no I/O, no global state
-```
+## Parsing Details
 
-- **Public API**: the names listed in `__all__` of `src/code_symbol_index/__init__.py`. Anything else is
-  internal and may change without a major version.
-- **Errors**: invalid input raises built-in exceptions (`ValueError`, `TypeError`) with a clear
-  message; the library never prints or exits.
-- **Side effects**: none. If a feature needs I/O, isolate it in its own module behind a small
-  interface and record the choice in an ADR.
-
-## Quality contract
-
-`scripts/check.py` is the single definition of the gates; `fabrica.json` tells the factory and CI
-how to run it. See [TESTING.md](TESTING.md).
-
-## Decisions
-
-Architecture decisions are recorded in [decisions/](decisions/) as numbered ADRs.
+- Decorators and properties are parsed by the line number of the definition. 
+- Signatures are constructed via `ast.unparse`.
+- Docstrings are extracted from `ast.get_docstring(clean=True)` and truncated to 120 chars.

@@ -1,19 +1,12 @@
 # Security notes
 
-## Threat model
+## Threat Model
 
-`trysac-code-symbol-index` is a pure library without I/O. The main risks are:
+- **Defended**: The library handles untrusted source strings via `ast.parse` and catch-all exceptions for syntax errors, preventing crashes. It uses pure functions where possible and validates query parameters (`limit` must be 1-1000; query length 1-200).
+- **Not defended**: No persistent I/O security (the library reads files provided by the user). It does not sanitize the contents of docstrings or signatures beyond truncation.
 
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
+## Limits
 
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- `MAX_NESTING_DEPTH = 32`: Prevents deep recursion in pathological files.
+- `MAX_FILES = 20_000` (default in `build_index`): Limits memory usage during walk.
+- `MAX_FILE_BYTES = 1_000_000` (default in `build_index`): Rejects extremely large files.
