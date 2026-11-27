@@ -4,8 +4,10 @@ Finding where a function or class is defined in a large Python repository often 
 
 ## Installation
 
+Not published to PyPI yet. Install it from GitHub:
+
 ```bash
-pip install trysac-code-symbol-index
+pip install "git+https://github.com/Trysac/u178-code-symbol-index"
 ```
 
 ## Usage
